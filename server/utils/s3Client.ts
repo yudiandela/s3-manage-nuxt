@@ -13,17 +13,29 @@ export function getS3Client(): S3Client {
 
   const config = useRuntimeConfig() as any
 
+  const region = (config.awsRegion as string) || process.env.AWS_REGION || 'us-east-1'
+  const accessKeyId = (config.awsAccessKeyId as string) || process.env.AWS_ACCESS_KEY_ID
+  const secretAccessKey = (config.awsSecretAccessKey as string) || process.env.AWS_SECRET_ACCESS_KEY
+  const endpoint = (config.awsEndpoint as string) || process.env.AWS_ENDPOINT
+
+  if (!accessKeyId || !secretAccessKey) {
+    throw createError({
+      statusCode: 500,
+      message: 'AWS credentials are not configured. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY (and AWS_ENDPOINT for S3-compatible).',
+    })
+  }
+
   const clientConfig: S3ClientConfig = {
-    region: (config.awsRegion as string) || 'us-east-1',
+    region,
     credentials: {
-      accessKeyId: config.awsAccessKeyId as string,
-      secretAccessKey: config.awsSecretAccessKey as string,
+      accessKeyId,
+      secretAccessKey,
     },
   }
 
   // Support custom endpoint (MinIO, R2, Spaces, etc.)
-  if (config.awsEndpoint) {
-    clientConfig.endpoint = config.awsEndpoint as string
+  if (endpoint) {
+    clientConfig.endpoint = endpoint
     clientConfig.forcePathStyle = true // Required for most S3-compatible services
   }
 
