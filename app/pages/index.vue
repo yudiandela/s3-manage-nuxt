@@ -36,6 +36,13 @@
           <button :class="{ active: store.viewMode === 'list' }" title="List view"
             @click="store.setViewMode('list')">≡</button>
         </div>
+
+        <select class="btn" style="cursor:pointer" @change="onPageSizeChange">
+          <option :value="50">50 per page</option>
+          <option :value="100">100 per page</option>
+          <option :value="200">200 per page</option>
+          <option :value="1000">1000 per page</option>
+        </select>
       </div>
 
       <!-- CONTENT -->
@@ -149,6 +156,11 @@ function onSortChange(e: Event) {
   const val = (e.target as HTMLSelectElement).value
   const [field, order] = val.split('-') as [SortField, SortOrder]
   store.setSort({ field, order })
+}
+
+function onPageSizeChange(e: Event) {
+  const size = Number((e.target as HTMLSelectElement).value)
+  store.setPageSize(size)
 }
 
 function onContextMenu(event: MouseEvent, obj: S3Object) {

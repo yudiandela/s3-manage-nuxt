@@ -28,6 +28,7 @@ export const useS3Store = defineStore('s3', () => {
   const continuationToken = ref<string | undefined>(undefined)
   const isTruncated = ref(false)
   const error = ref<string | null>(null)
+  const pageSize = ref<number>(200)
 
   // ─── Computed ─────────────────────────────────────────────
   const filteredObjects = computed(() => {
@@ -120,6 +121,7 @@ export const useS3Store = defineStore('s3', () => {
         bucket: currentBucket.value,
         prefix: currentPrefix.value,
       }
+      if (pageSize.value) params.maxKeys = String(pageSize.value)
       if (continuationToken.value) params.continuationToken = continuationToken.value
 
       const data = await $fetch('/api/s3/objects', { params })
@@ -159,6 +161,11 @@ export const useS3Store = defineStore('s3', () => {
 
   async function loadMore() {
     if (isTruncated.value) await fetchObjects(true)
+  }
+  function setPageSize(size: number) {
+    pageSize.value = size
+    continuationToken.value = undefined
+    fetchObjects()
   }
 
   // ─── Selection ────────────────────────────────────────────
@@ -350,12 +357,14 @@ export const useS3Store = defineStore('s3', () => {
     objects, selectedKeys, loading, uploading,
     uploadTasks, viewMode, sortOptions,
     searchQuery, isTruncated, error,
+    pageSize,
     // Computed
     filteredObjects, stats, breadcrumbs,
     hasSelection, selectionCount,
     // Actions
     fetchBuckets, selectBucket,
     fetchObjects, navigateTo, loadMore,
+    setPageSize,
     toggleSelect, selectAll, clearSelection, isSelected,
     uploadFiles, clearUploadTasks,
     deleteObjects, deleteSelected,

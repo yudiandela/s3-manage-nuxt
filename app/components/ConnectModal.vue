@@ -10,17 +10,20 @@
 
         <div class="modal-body">
           <div class="info-banner">
-            💡 Configure AWS credentials to connect to S3 or any compatible storage (MinIO, Cloudflare R2, DigitalOcean Spaces, Backblaze B2…). Credentials are stored server-side only.
+            💡 Configure AWS credentials to connect to S3 or any compatible storage (MinIO, Cloudflare R2, DigitalOcean
+            Spaces, Backblaze B2…). Credentials are stored server-side only.
           </div>
 
           <div class="settings-grid">
             <div class="form-group">
               <label class="form-label">Access Key ID</label>
-              <input v-model="form.accessKeyId" class="form-input" placeholder="AKIA…" type="password" autocomplete="off" />
+              <input v-model="form.accessKeyId" class="form-input" placeholder="AKIA…" type="password"
+                autocomplete="off" />
             </div>
             <div class="form-group">
               <label class="form-label">Secret Access Key</label>
-              <input v-model="form.secretAccessKey" class="form-input" placeholder="••••••••••••••••" type="password" autocomplete="off" />
+              <input v-model="form.secretAccessKey" class="form-input" placeholder="••••••••••••••••" type="password"
+                autocomplete="off" />
             </div>
             <div class="form-group">
               <label class="form-label">Region</label>
@@ -69,11 +72,11 @@ const regions = [
 ]
 
 const form = reactive({
-  accessKeyId: '',
-  secretAccessKey: '',
-  region: 'us-east-1',
-  bucketName: '',
-  endpoint: '',
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+  region: process.env.AWS_REGION || 'us-east-1',
+  bucketName: process.env.AWS_BUCKET_NAME || '',
+  endpoint: process.env.AWS_ENDPOINT_URL || '',
 })
 
 const testing = ref(false)
