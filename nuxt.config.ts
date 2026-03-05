@@ -5,9 +5,9 @@ export default defineNuxtConfig({
   modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss'],
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
-    awsRegion: process.env.AWS_REGION,
-    awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    awsEndpoint: process.env.AWS_ENDPOINT,
+    awsRegion: process.env.NUXT_DEFAULT_REGION,
+    awsAccessKeyId: process.env.NUXT_ACCESS_KEY_ID,
+    awsSecretAccessKey: process.env.NUXT_SECRET_ACCESS_KEY,
+    awsEndpoint: process.env.NUXT_ENDPOINT,
   },
 })
