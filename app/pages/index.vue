@@ -37,7 +37,7 @@
             @click="store.setViewMode('list')">≡</button>
         </div>
 
-        <select class="btn" style="cursor:pointer" @change="onPageSizeChange">
+        <select class="btn" style="cursor:pointer" v-model="store.pageSize" @change="onPageSizeChange">
           <option :value="50">50 per page</option>
           <option :value="100">100 per page</option>
           <option :value="200">200 per page</option>
