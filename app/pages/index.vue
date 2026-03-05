@@ -176,8 +176,14 @@ async function onCtxAction(type: string, target: S3Object) {
       if (target.isFolder) store.navigateTo(target.key)
       break
     case 'download':
-      await store.downloadObject(target.key)
-      toast.success(`⬇️ Downloading: ${target.name}`)
+      if (target.isFolder) {
+        await store.downloadFolder(target.key)
+        toast.success(`⬇️ Downloading folder: ${target.name}.zip`)
+      }
+      else {
+        await store.downloadObject(target.key)
+        toast.success(`⬇️ Downloading: ${target.name}`)
+      }
       break
     case 'copyUrl': {
       const url = `https://${store.currentBucket}.s3.amazonaws.com/${target.key}`

@@ -340,6 +340,14 @@ export const useS3Store = defineStore('s3', () => {
     a.click()
   }
 
+  async function downloadFolder(prefix: string) {
+    const url = `/api/s3/folder-download?bucket=${encodeURIComponent(currentBucket.value)}&prefix=${encodeURIComponent(prefix)}`
+    const a = document.createElement('a')
+    a.href = url
+    a.download = (prefix.replace(/\/$/, '').split('/').pop() || 'folder') + '.zip'
+    a.click()
+  }
+
   async function downloadSelected() {
     await Promise.all([...selectedKeys.value].map((key) => downloadObject(key)))
     clearSelection()
@@ -370,7 +378,7 @@ export const useS3Store = defineStore('s3', () => {
     deleteObjects, deleteSelected,
     createFolder,
     renameObject,
-    getDownloadUrl, downloadObject, downloadSelected,
+    getDownloadUrl, downloadObject, downloadFolder, downloadSelected,
     setViewMode, setSort, setSearch,
   }
 })
