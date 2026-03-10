@@ -91,6 +91,7 @@
     <FolderModal v-model="showFolder" @done="toast.success('Folder created!')" />
     <ConnectModal v-model="showConnect" @connected="onConnected" />
     <RenameModal v-model="showRename" :target="renameTarget" @done="toast.success('Renamed successfully!')" />
+    <PreviewModal v-model="showPreview" :target="previewTarget" />
 
     <!-- CONTEXT MENU -->
     <ContextMenu :visible="ctxVisible" :x="ctxX" :y="ctxY" :target="ctxTarget" @action="onCtxAction"
@@ -112,8 +113,10 @@ const showUpload = ref(false)
 const showFolder = ref(false)
 const showConnect = ref(false)
 const showRename = ref(false)
+const showPreview = ref(false)
 const searchQuery = ref('')
 const renameTarget = ref<S3Object | null>(null)
+const previewTarget = ref<S3Object | null>(null)
 
 // Context menu state
 const ctxVisible = ref(false)
@@ -175,6 +178,7 @@ async function onCtxAction(type: string, target: S3Object) {
   switch (type) {
     case 'open':
       if (target.isFolder) store.navigateTo(target.key)
+      else { previewTarget.value = target; showPreview.value = true }
       break
     case 'download':
       if (target.isFolder) {
