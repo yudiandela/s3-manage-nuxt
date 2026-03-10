@@ -43,6 +43,24 @@
   --success: #059669;
 }
 
+:root[data-theme='one-dark'] {
+  --bg: #282c34;
+  --surface: #21252b;
+  --surface2: #2c313a;
+  --surface3: #3a404a;
+  --border: #3a404a;
+  --border2: #4b5263;
+  --accent: #61afef;
+  --accent2: #56b6c2;
+  --accent3: #98c379;
+  --text: #abb2bf;
+  --text2: #c8ccd4;
+  --text3: #7f8794;
+  --danger: #e06c75;
+  --warn: #e5c07b;
+  --success: #98c379;
+}
+
 /* ───────────────────────────────────────── */
 /* Reset                                     */
 /* ───────────────────────────────────────── */

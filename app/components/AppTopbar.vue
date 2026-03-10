@@ -22,9 +22,11 @@
         <div class="status-dot" />
         Connected
       </div>
-      <button class="btn btn-icon" :title="theme === 'dark' ? 'Switch to light' : 'Switch to dark'" @click="toggle">
-        {{ theme === 'dark' ? '🌙' : '☀️' }}
-      </button>
+      <select class="btn" style="cursor:pointer" :value="theme" @change="onThemeChange">
+        <option value="dark">Dark</option>
+        <option value="one-dark">One Dark</option>
+        <option value="light">Light</option>
+      </select>
       <button class="btn" @click="$emit('openConfig')">⚙️ Configure</button>
     </div>
   </header>
@@ -32,8 +34,12 @@
 
 <script setup lang="ts">
 import { useS3Store } from '~/stores/s3'
-import { useTheme } from '~/composables/useTheme'
+import { useTheme, type ThemeMode } from '~/composables/useTheme'
 defineEmits(['openConfig'])
 const store = useS3Store()
-const { theme, toggle } = useTheme()
+const { theme, setTheme } = useTheme()
+
+function onThemeChange(e: Event) {
+  setTheme((e.target as HTMLSelectElement).value as ThemeMode)
+}
 </script>

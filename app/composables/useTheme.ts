@@ -1,9 +1,9 @@
-export type ThemeMode = 'dark' | 'light'
+export type ThemeMode = 'dark' | 'one-dark' | 'light'
 
 const STORAGE_KEY = 'theme'
 
 function normalizeTheme(v: string | null | undefined): ThemeMode | null {
-  if (v === 'dark' || v === 'light') return v
+  if (v === 'dark' || v === 'one-dark' || v === 'light') return v
   return null
 }
 
@@ -19,7 +19,7 @@ export function useTheme() {
   }
 
   function toggle() {
-    apply(theme.value === 'dark' ? 'light' : 'dark')
+    apply(theme.value === 'dark' ? 'one-dark' : theme.value === 'one-dark' ? 'light' : 'dark')
   }
 
   if (import.meta.client) {
