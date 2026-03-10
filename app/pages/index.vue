@@ -105,6 +105,7 @@ import type { S3Object, SortField, SortOrder } from '~/types/s3'
 
 const store = useS3Store()
 const toast = useToast()
+const runtime = useRuntimeConfig()
 
 // UI state
 const showUpload = ref(false)
@@ -186,7 +187,10 @@ async function onCtxAction(type: string, target: S3Object) {
       }
       break
     case 'copyUrl': {
-      const url = `https://${store.currentBucket}.s3.amazonaws.com/${target.key}`
+      const ep = (runtime.public?.s3Endpoint as string | undefined)?.replace(/\/$/, '')
+      const url = ep
+        ? `${ep}/${encodeURIComponent(store.currentBucket)}/${target.key.split('/').map(encodeURIComponent).join('/')}`
+        : `https://${store.currentBucket}.s3.amazonaws.com/${target.key}`
       await navigator.clipboard.writeText(url)
       toast.info('🔗 URL copied to clipboard')
       break

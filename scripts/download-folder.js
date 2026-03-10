@@ -22,13 +22,13 @@ if (!bucket || !prefix) {
   process.exit(1)
 }
 
-const region = process.env.NUXT_DEFAULT_REGION || process.env.AWS_REGION || 'us-east-1'
-const accessKeyId = process.env.NUXT_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID
-const secretAccessKey = process.env.NUXT_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY
-const endpoint = process.env.NUXT_ENDPOINT || process.env.AWS_ENDPOINT
+const region = process.env.NUXT_S3_DEFAULT_REGION || process.env.AWS_REGION || 'us-east-1'
+const accessKeyId = process.env.NUXT_S3_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID
+const secretAccessKey = process.env.NUXT_S3_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY
+const endpoint = process.env.NUXT_S3_ENDPOINT || process.env.AWS_ENDPOINT
 
 if (!accessKeyId || !secretAccessKey) {
-  console.error('Missing credentials: set NUXT_ACCESS_KEY_ID/NUXT_SECRET_ACCESS_KEY or AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY')
+  console.error('Missing credentials: set NUXT_S3_ACCESS_KEY_ID/NUXT_S3_SECRET_ACCESS_KEY or AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY')
   process.exit(1)
 }
 

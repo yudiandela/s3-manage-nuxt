@@ -72,11 +72,11 @@ const regions = [
 ]
 
 const form = reactive({
-  accessKeyId: process.env.NUXT_ACCESS_KEY_ID || '',
-  secretAccessKey: process.env.NUXT_SECRET_ACCESS_KEY || '',
-  region: process.env.NUXT_DEFAULT_REGION || 'us-east-1',
-  bucketName: process.env.NUXT_BUCKET || '',
-  endpoint: process.env.NUXT_ENDPOINT || '',
+  accessKeyId: process.env.NUXT_S3_ACCESS_KEY_ID || '',
+  secretAccessKey: process.env.NUXT_S3_SECRET_ACCESS_KEY || '',
+  region: process.env.NUXT_S3_DEFAULT_REGION || 'us-east-1',
+  bucketName: process.env.NUXT_S3_BUCKET || '',
+  endpoint: process.env.NUXT_S3_ENDPOINT || '',
 })
 
 const testing = ref(false)

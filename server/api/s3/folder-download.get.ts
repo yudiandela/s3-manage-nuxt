@@ -1,7 +1,7 @@
 // server/api/s3/folder-download.get.ts
 // GET /api/s3/folder-download?bucket=...&prefix=folder/
 // Streams a ZIP archive of all objects under the given prefix
-import archiver, { type Archiver } from 'archiver'
+import archiver from 'archiver'
 import { setHeader } from 'h3'
 import { ListObjectsV2Command, GetObjectCommand, type ListObjectsV2Output } from '@aws-sdk/client-s3'
 import { getS3Client } from '../../utils/s3Client'
