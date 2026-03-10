@@ -22,6 +22,9 @@
         <div class="status-dot" />
         Connected
       </div>
+      <button class="btn btn-icon" :title="theme === 'dark' ? 'Switch to light' : 'Switch to dark'" @click="toggle">
+        {{ theme === 'dark' ? '🌙' : '☀️' }}
+      </button>
       <button class="btn" @click="$emit('openConfig')">⚙️ Configure</button>
     </div>
   </header>
@@ -29,6 +32,8 @@
 
 <script setup lang="ts">
 import { useS3Store } from '~/stores/s3'
+import { useTheme } from '~/composables/useTheme'
 defineEmits(['openConfig'])
 const store = useS3Store()
+const { theme, toggle } = useTheme()
 </script>
