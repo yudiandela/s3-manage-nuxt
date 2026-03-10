@@ -1,9 +1,18 @@
-export type ThemeMode = 'dark' | 'one-dark' | 'light'
+export type ThemeMode = 'dark' | 'one-dark' | 'dracula' | 'nord' | 'tokyo-night' | 'light'
 
 const STORAGE_KEY = 'theme'
 
+export const THEME_OPTIONS: Array<{ value: ThemeMode; label: string }> = [
+  { value: 'dark', label: 'Dark' },
+  { value: 'one-dark', label: 'One Dark' },
+  { value: 'dracula', label: 'Dracula' },
+  { value: 'nord', label: 'Nord' },
+  { value: 'tokyo-night', label: 'Tokyo Night' },
+  { value: 'light', label: 'Light' },
+]
+
 function normalizeTheme(v: string | null | undefined): ThemeMode | null {
-  if (v === 'dark' || v === 'one-dark' || v === 'light') return v
+  if (v === 'dark' || v === 'one-dark' || v === 'dracula' || v === 'nord' || v === 'tokyo-night' || v === 'light') return v
   return null
 }
 
@@ -19,7 +28,9 @@ export function useTheme() {
   }
 
   function toggle() {
-    apply(theme.value === 'dark' ? 'one-dark' : theme.value === 'one-dark' ? 'light' : 'dark')
+    const list = THEME_OPTIONS.map(o => o.value)
+    const idx = list.indexOf(theme.value)
+    apply(list[(idx + 1) % list.length] ?? 'dark')
   }
 
   if (import.meta.client) {

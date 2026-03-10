@@ -61,6 +61,60 @@
   --success: #98c379;
 }
 
+:root[data-theme='dracula'] {
+  --bg: #282a36;
+  --surface: #1f202a;
+  --surface2: #2b2d3a;
+  --surface3: #3b3d4f;
+  --border: #3b3d4f;
+  --border2: #4b4e66;
+  --accent: #bd93f9;
+  --accent2: #8be9fd;
+  --accent3: #50fa7b;
+  --text: #f8f8f2;
+  --text2: #d9d9d4;
+  --text3: #8b8fa3;
+  --danger: #ff5555;
+  --warn: #ffb86c;
+  --success: #50fa7b;
+}
+
+:root[data-theme='nord'] {
+  --bg: #2e3440;
+  --surface: #242a36;
+  --surface2: #2b3241;
+  --surface3: #3b4252;
+  --border: #3b4252;
+  --border2: #4c566a;
+  --accent: #88c0d0;
+  --accent2: #81a1c1;
+  --accent3: #a3be8c;
+  --text: #eceff4;
+  --text2: #d8dee9;
+  --text3: #7b88a1;
+  --danger: #bf616a;
+  --warn: #ebcb8b;
+  --success: #a3be8c;
+}
+
+:root[data-theme='tokyo-night'] {
+  --bg: #1a1b26;
+  --surface: #16161e;
+  --surface2: #1f2335;
+  --surface3: #292e42;
+  --border: #292e42;
+  --border2: #3b4261;
+  --accent: #7aa2f7;
+  --accent2: #2ac3de;
+  --accent3: #9ece6a;
+  --text: #c0caf5;
+  --text2: #a9b1d6;
+  --text3: #6b738f;
+  --danger: #f7768e;
+  --warn: #e0af68;
+  --success: #9ece6a;
+}
+
 /* ───────────────────────────────────────── */
 /* Reset                                     */
 /* ───────────────────────────────────────── */

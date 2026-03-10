@@ -23,9 +23,7 @@
         Connected
       </div>
       <select class="btn" style="cursor:pointer" :value="theme" @change="onThemeChange">
-        <option value="dark">Dark</option>
-        <option value="one-dark">One Dark</option>
-        <option value="light">Light</option>
+        <option v-for="opt in themeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
       </select>
       <button class="btn" @click="$emit('openConfig')">⚙️ Configure</button>
     </div>
@@ -34,10 +32,11 @@
 
 <script setup lang="ts">
 import { useS3Store } from '~/stores/s3'
-import { useTheme, type ThemeMode } from '~/composables/useTheme'
+import { useTheme, type ThemeMode, THEME_OPTIONS } from '~/composables/useTheme'
 defineEmits(['openConfig'])
 const store = useS3Store()
 const { theme, setTheme } = useTheme()
+const themeOptions = THEME_OPTIONS
 
 function onThemeChange(e: Event) {
   setTheme((e.target as HTMLSelectElement).value as ThemeMode)
