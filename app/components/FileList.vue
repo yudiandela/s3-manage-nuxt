@@ -48,10 +48,10 @@
       </div>
     </div>
 
-    <!-- Load more -->
-    <div v-if="store.isTruncated" class="load-more-row" @click="store.loadMore()">
-      <span class="loading-spinner" v-if="store.loading" />
-      <span v-else>Load more objects…</span>
+    <div v-if="store.canPrevPage || store.canNextPage" class="pagination-bar" @click.stop>
+      <button class="btn" :disabled="!store.canPrevPage || store.loading" @click="store.prevPage()">Prev</button>
+      <div class="pagination-page">Page {{ store.pageIndex + 1 }}</div>
+      <button class="btn" :disabled="!store.canNextPage || store.loading" @click="store.nextPage()">Next</button>
     </div>
   </div>
 </template>

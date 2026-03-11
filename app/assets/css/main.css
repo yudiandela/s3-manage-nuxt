@@ -796,17 +796,23 @@ body::before {
   text-transform: uppercase;
 }
 
-.load-more-row {
-  text-align: center;
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   padding: 14px;
-  color: var(--text2);
-  font-size: 13px;
-  cursor: pointer;
-  transition: color 0.15s;
 }
 
-.load-more-row:hover {
-  color: var(--accent);
+.pagination-page {
+  font-size: 12px;
+  color: var(--text2);
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  border-radius: 6px;
+  min-width: 90px;
+  text-align: center;
 }
 
 /* ───────────────────────────────────────── */

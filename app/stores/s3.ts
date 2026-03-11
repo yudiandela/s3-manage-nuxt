@@ -26,7 +26,9 @@ export const useS3Store = defineStore('s3', () => {
   const viewMode = ref<ViewMode>('grid')
   const sortOptions = ref<SortOptions>({ field: 'name', order: 'asc' })
   const searchQuery = ref('')
-  const continuationToken = ref<string | undefined>(undefined)
+  const pageIndex = ref(0)
+  const pageTokens = ref<Array<string | undefined>>([undefined])
+  const nextToken = ref<string | undefined>(undefined)
   const isTruncated = ref(false)
   const error = ref<string | null>(null)
   const pageSize = ref<number>(200)
@@ -82,8 +84,17 @@ export const useS3Store = defineStore('s3', () => {
 
   const hasSelection = computed(() => selectedKeys.value.size > 0)
   const selectionCount = computed(() => selectedKeys.value.size)
+  const canPrevPage = computed(() => pageIndex.value > 0)
+  const canNextPage = computed(() => Boolean(pageTokens.value[pageIndex.value + 1]))
 
   // ─── Actions ──────────────────────────────────────────────
+
+  function resetPaging() {
+    pageIndex.value = 0
+    pageTokens.value = [undefined]
+    nextToken.value = undefined
+    isTruncated.value = false
+  }
 
   async function fetchBuckets() {
     loading.value = true
@@ -138,8 +149,7 @@ export const useS3Store = defineStore('s3', () => {
     objects.value = []
     buckets.value = []
     selectedKeys.value = new Set()
-    continuationToken.value = undefined
-    isTruncated.value = false
+    resetPaging()
 
     await $fetch('/api/config/active', { method: 'POST', body: { id } })
     await fetchProfiles()
@@ -158,18 +168,16 @@ export const useS3Store = defineStore('s3', () => {
     currentBucket.value = name
     currentPrefix.value = ''
     selectedKeys.value = new Set()
+    resetPaging()
     await fetchObjects()
   }
 
-  async function fetchObjects(append = false) {
+  async function fetchObjects() {
     if (!currentBucket.value) return
     loading.value = true
     error.value = null
 
-    if (!append) {
-      objects.value = []
-      continuationToken.value = undefined
-    }
+    objects.value = []
 
     try {
       const params: Record<string, string> = {
@@ -177,31 +185,30 @@ export const useS3Store = defineStore('s3', () => {
         prefix: currentPrefix.value,
       }
       if (pageSize.value) params.maxKeys = String(pageSize.value)
-      if (continuationToken.value) params.continuationToken = continuationToken.value
+      const token = pageTokens.value[pageIndex.value]
+      if (token) params.continuationToken = token
 
       const data = await $fetch('/api/s3/objects', { params })
 
-      if (append) {
-        objects.value = [
-          ...objects.value,
-          ...(data.objects || []).map((o: any) => ({
-            ...o,
-            lastModified: o.lastModified ? new Date(o.lastModified) : undefined,
-          })),
-        ]
+      objects.value = (data.objects || []).map((o: any) => ({
+        ...o,
+        lastModified: o.lastModified ? new Date(o.lastModified) : undefined,
+      }))
+
+      nextToken.value = data.continuationToken
+      isTruncated.value = data.isTruncated
+      if (nextToken.value) {
+        pageTokens.value[pageIndex.value + 1] = nextToken.value
       }
       else {
-        objects.value = (data.objects || []).map((o: any) => ({
-          ...o,
-          lastModified: o.lastModified ? new Date(o.lastModified) : undefined,
-        }))
+        pageTokens.value = pageTokens.value.slice(0, pageIndex.value + 1)
       }
-
-      continuationToken.value = data.continuationToken
-      isTruncated.value = data.isTruncated
     }
     catch (e: any) {
       error.value = e?.data?.message || e?.message || 'Failed to load objects'
+      objects.value = []
+      nextToken.value = undefined
+      isTruncated.value = false
     }
     finally {
       loading.value = false
@@ -211,15 +218,30 @@ export const useS3Store = defineStore('s3', () => {
   async function navigateTo(prefix: string) {
     currentPrefix.value = prefix
     selectedKeys.value = new Set()
+    resetPaging()
+    await fetchObjects()
+  }
+
+  async function nextPage() {
+    if (!canNextPage.value) return
+    pageIndex.value += 1
+    selectedKeys.value = new Set()
+    await fetchObjects()
+  }
+
+  async function prevPage() {
+    if (!canPrevPage.value) return
+    pageIndex.value -= 1
+    selectedKeys.value = new Set()
     await fetchObjects()
   }
 
   async function loadMore() {
-    if (isTruncated.value) await fetchObjects(true)
+    await nextPage()
   }
   function setPageSize(size: number) {
     pageSize.value = size
-    continuationToken.value = undefined
+    resetPaging()
     fetchObjects()
   }
 
@@ -424,15 +446,18 @@ export const useS3Store = defineStore('s3', () => {
     activeProfile,
     activeProfileId,
     profiles,
+    pageIndex,
     // Computed
     filteredObjects, stats, breadcrumbs,
     hasSelection, selectionCount,
+    canPrevPage, canNextPage,
     // Actions
     fetchBuckets, selectBucket,
     fetchActiveProfile,
     fetchProfiles,
     switchProfile,
     fetchObjects, navigateTo, loadMore,
+    nextPage, prevPage,
     setPageSize,
     toggleSelect, selectAll, clearSelection, isSelected,
     uploadFiles, clearUploadTasks,
