@@ -97,6 +97,7 @@ export const useS3Store = defineStore('s3', () => {
     }
     catch (e: any) {
       error.value = e?.data?.message || e?.message || 'Failed to load buckets'
+      buckets.value = []
     }
     finally {
       loading.value = false
@@ -132,9 +133,18 @@ export const useS3Store = defineStore('s3', () => {
   }
 
   async function switchProfile(id: string | null) {
+    currentBucket.value = ''
+    currentPrefix.value = ''
+    objects.value = []
+    buckets.value = []
+    selectedKeys.value = new Set()
+    continuationToken.value = undefined
+    isTruncated.value = false
+
     await $fetch('/api/config/active', { method: 'POST', body: { id } })
     await fetchProfiles()
     await fetchBuckets()
+    if (!buckets.value.length) return
     const nextBucket = activeProfile.value?.defaultBucket
     if (nextBucket && buckets.value.some(b => b.name === nextBucket)) {
       await selectBucket(nextBucket)

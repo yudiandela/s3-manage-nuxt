@@ -22,6 +22,11 @@
             </select>
           </div>
 
+          <div v-if="mode === 'custom'" class="form-group">
+            <label class="form-label">Profile Name</label>
+            <input v-model="profileName" class="form-input" placeholder="Production / Staging / R2 / MinIO" />
+          </div>
+
           <div class="settings-grid">
             <div class="form-group">
               <label class="form-label">Access Key ID</label>
@@ -82,6 +87,7 @@ const regions = [
 
 const mode = ref<'env' | 'custom'>('env')
 const customProfileId = ref<string | null>(null)
+const profileName = ref<string>('Custom')
 
 const form = reactive({
   accessKeyId: '',
@@ -106,6 +112,7 @@ async function loadActive() {
   if (data.activeProfileId) {
     mode.value = 'custom'
     customProfileId.value = data.activeProfileId
+    profileName.value = String(data.activeProfile?.name || 'Custom')
     form.region = data.activeProfile?.region || 'us-east-1'
     form.bucketName = data.activeProfile?.defaultBucket || ''
     form.endpoint = data.activeProfile?.endpoint || ''
@@ -113,6 +120,7 @@ async function loadActive() {
   else {
     mode.value = 'env'
     customProfileId.value = null
+    profileName.value = 'Custom'
     form.region = 'us-east-1'
     form.bucketName = ''
     form.endpoint = ''
@@ -157,7 +165,7 @@ async function save() {
     method: 'POST',
     body: {
       id: customProfileId.value || undefined,
-      name: 'Custom',
+      name: profileName.value.trim() || 'Custom',
       region: form.region,
       endpoint: form.endpoint || undefined,
       defaultBucket: form.bucketName || undefined,

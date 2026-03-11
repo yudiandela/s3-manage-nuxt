@@ -29,14 +29,7 @@ onMounted(async () => {
 })
 
 function label(p: S3ProfilePublic) {
-  const endpoint = p.endpoint ? safeHost(p.endpoint) : null
-  const bits = [p.name]
-  if (endpoint) bits.push(endpoint)
-  return bits.join(' · ')
-}
-
-function safeHost(u: string) {
-  try { return new URL(u).host } catch { return u }
+  return p.name
 }
 
 async function onChange(e: Event) {

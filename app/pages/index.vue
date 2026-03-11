@@ -126,7 +126,7 @@ const ctxTarget = ref<S3Object | null>(null)
 
 // Load buckets on mount
 onMounted(async () => {
-  await store.fetchActiveProfile()
+  await store.fetchProfiles()
   await store.fetchBuckets()
   const first = store.buckets[0]
   if (first) await store.selectBucket(first.name)
@@ -221,7 +221,7 @@ async function onCtxAction(type: string, target: S3Object) {
 
 function onConnected(_form: any) {
   toast.success(`🔗 Connected! Refreshing buckets…`)
-  store.fetchActiveProfile()
+  store.fetchProfiles()
   store.fetchBuckets()
 }
 </script>
