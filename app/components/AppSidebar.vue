@@ -23,13 +23,13 @@
     <div class="sidebar-storage">
       <div class="storage-bar-label">
         <span>Storage used</span>
-        <span class="accent">{{ usedPct }}%</span>
+        <span class="accent">{{ usedLabel }}</span>
       </div>
       <div class="storage-bar">
         <div class="storage-bar-fill" :style="{ width: usedPct + '%' }" />
       </div>
       <div class="storage-detail">
-        {{ formatBytes(store.stats.totalSize) }} in current view
+        {{ usedDetail }}
       </div>
     </div>
   </aside>
@@ -41,6 +41,8 @@ import { formatBytes } from '~/utils/format'
 
 const store = useS3Store()
 
-// Fake storage 67 %
-const usedPct = 67
+const usedBytes = computed(() => store.folderTotals?.totalSize ?? store.stats.totalSize)
+const usedPct = computed(() => (usedBytes.value > 0 ? 100 : 0))
+const usedLabel = computed(() => (store.folderTotalsLoading ? `${formatBytes(usedBytes.value)}` : formatBytes(usedBytes.value)))
+const usedDetail = computed(() => (store.folderTotalsLoading ? 'Calculating folder totals…' : 'Total size in current folder'))
 </script>
