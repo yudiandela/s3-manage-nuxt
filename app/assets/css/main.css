@@ -259,6 +259,10 @@ body::before {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  align-self: start;
 }
 
 .sidebar-section {
