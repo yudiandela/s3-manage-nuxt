@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'bucket and name are required' })
   }
 
-  const client = getS3Client()
+  const client = await getS3Client()
 
   // S3 folders are zero-byte objects with a trailing /
   const folderKey = body.prefix

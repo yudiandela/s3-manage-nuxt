@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'bucket and key are required' })
   }
 
-  const client = getS3Client()
+  const client = await getS3Client()
 
   const command = new PutObjectCommand({
     Bucket: body.bucket,

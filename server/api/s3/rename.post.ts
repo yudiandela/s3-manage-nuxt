@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Source and destination keys are identical' })
   }
 
-  const client = getS3Client()
+  const client = await getS3Client()
 
   // Step 1: Copy to new key
   await client.send(

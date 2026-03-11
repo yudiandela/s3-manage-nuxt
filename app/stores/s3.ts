@@ -10,6 +10,7 @@ import type {
   ViewMode,
   FileStats,
 } from '~/types/s3'
+import type { S3ProfilePublic } from '~/types/config'
 import { generateId, buildS3Key } from '~/utils/format'
 
 export const useS3Store = defineStore('s3', () => {
@@ -29,6 +30,7 @@ export const useS3Store = defineStore('s3', () => {
   const isTruncated = ref(false)
   const error = ref<string | null>(null)
   const pageSize = ref<number>(200)
+  const activeProfile = ref<S3ProfilePublic | null>(null)
 
   // ─── Computed ─────────────────────────────────────────────
   const filteredObjects = computed(() => {
@@ -96,6 +98,16 @@ export const useS3Store = defineStore('s3', () => {
     }
     finally {
       loading.value = false
+    }
+  }
+
+  async function fetchActiveProfile() {
+    try {
+      const data = await $fetch('/api/config/active')
+      activeProfile.value = data.activeProfile || null
+    }
+    catch {
+      activeProfile.value = null
     }
   }
 
@@ -366,11 +378,13 @@ export const useS3Store = defineStore('s3', () => {
     uploadTasks, viewMode, sortOptions,
     searchQuery, isTruncated, error,
     pageSize,
+    activeProfile,
     // Computed
     filteredObjects, stats, breadcrumbs,
     hasSelection, selectionCount,
     // Actions
     fetchBuckets, selectBucket,
+    fetchActiveProfile,
     fetchObjects, navigateTo, loadMore,
     setPageSize,
     toggleSelect, selectAll, clearSelection, isSelected,

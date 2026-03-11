@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'bucket is required' })
   }
 
-  const client = getS3Client()
+  const client = await getS3Client()
 
   const input: ListObjectsV2CommandInput = {
     Bucket: bucket,

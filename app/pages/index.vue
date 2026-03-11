@@ -126,6 +126,7 @@ const ctxTarget = ref<S3Object | null>(null)
 
 // Load buckets on mount
 onMounted(async () => {
+  await store.fetchActiveProfile()
   await store.fetchBuckets()
   const first = store.buckets[0]
   if (first) await store.selectBucket(first.name)
@@ -191,7 +192,7 @@ async function onCtxAction(type: string, target: S3Object) {
       }
       break
     case 'copyUrl': {
-      const ep = (runtime.public?.s3Endpoint as string | undefined)?.replace(/\/$/, '')
+      const ep = (store.activeProfile?.endpoint || (runtime.public?.s3Endpoint as string | undefined))?.replace(/\/$/, '')
       const url = ep
         ? `${ep}/${encodeURIComponent(store.currentBucket)}/${target.key.split('/').map(encodeURIComponent).join('/')}`
         : `https://${store.currentBucket}.s3.amazonaws.com/${target.key}`
@@ -220,6 +221,7 @@ async function onCtxAction(type: string, target: S3Object) {
 
 function onConnected(_form: any) {
   toast.success(`🔗 Connected! Refreshing buckets…`)
+  store.fetchActiveProfile()
   store.fetchBuckets()
 }
 </script>

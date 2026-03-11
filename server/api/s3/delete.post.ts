@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Maximum 1000 keys per request' })
   }
 
-  const client = getS3Client()
+  const client = await getS3Client()
 
   const objects: ObjectIdentifier[] = body.keys.map((key) => ({ Key: key }))
 
