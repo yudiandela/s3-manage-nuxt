@@ -9,9 +9,6 @@
       <div class="ctx-item" @click="action('copyUrl')">🔗 Copy URL</div>
       <div class="ctx-item" @click="action('rename')">✏️ Rename</div>
       <div class="ctx-sep" />
-      <div class="ctx-item" @click="action('makePublic')">🌐 Make Public</div>
-      <div class="ctx-item" @click="action('makePrivate')">🔒 Make Private</div>
-      <div class="ctx-sep" />
       <div class="ctx-item danger" @click="action('delete')">🗑️ Delete</div>
     </div>
   </Teleport>

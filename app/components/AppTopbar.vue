@@ -18,7 +18,7 @@
     </nav>
 
     <div class="topbar-actions">
-      <div class="status-badge">
+      <div class="status-badge btn">
         <div class="status-dot" />
         Connected
       </div>

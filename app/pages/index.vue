@@ -210,12 +210,6 @@ async function onCtxAction(type: string, target: S3Object) {
         toast.success(`🗑️ Deleted: ${target.name}`)
       }
       break
-    case 'makePublic':
-      toast.success(`🌐 ${target.name} is now public`)
-      break
-    case 'makePrivate':
-      toast.info(`🔒 ${target.name} is now private`)
-      break
   }
 }
 

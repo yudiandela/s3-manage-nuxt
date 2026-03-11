@@ -73,7 +73,6 @@ export const useS3Store = defineStore('s3', () => {
       totalFiles: files.length,
       totalFolders: objects.value.filter((o) => o.isFolder).length,
       totalSize: files.reduce((s, o) => s + o.size, 0),
-      publicObjects: objects.value.filter((o) => o.isPublic).length,
     }
   })
 

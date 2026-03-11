@@ -22,7 +22,7 @@ const stats = computed(() => [
     icon: '📁',
     iconBg: 'rgba(0,212,255,0.12)',
     value: store.folderTotalsLoading
-      ? `${store.folderTotals?.totalFolders ?? store.stats.totalFolders}…`
+      ? `${store.folderTotals?.totalFolders ?? store.stats.totalFolders}`
       : (store.folderTotals?.totalFolders ?? store.stats.totalFolders),
     label: 'Folders',
   },
@@ -30,7 +30,7 @@ const stats = computed(() => [
     icon: '📄',
     iconBg: 'rgba(0,255,157,0.12)',
     value: store.folderTotalsLoading
-      ? `${store.folderTotals?.totalFiles ?? store.stats.totalFiles}…`
+      ? `${store.folderTotals?.totalFiles ?? store.stats.totalFiles}`
       : (store.folderTotals?.totalFiles ?? store.stats.totalFiles),
     label: 'Files',
   },
@@ -38,15 +38,9 @@ const stats = computed(() => [
     icon: '💾',
     iconBg: 'rgba(255,165,2,0.12)',
     value: store.folderTotalsLoading
-      ? `${formatBytes(store.folderTotals?.totalSize ?? store.stats.totalSize)}…`
+      ? `${formatBytes(store.folderTotals?.totalSize ?? store.stats.totalSize)}`
       : formatBytes(store.folderTotals?.totalSize ?? store.stats.totalSize),
     label: 'Total Size',
-  },
-  {
-    icon: '🌐',
-    iconBg: 'rgba(255,71,87,0.12)',
-    value: store.stats.publicObjects,
-    label: 'Public Objects',
   },
 ])
 </script>

@@ -44,7 +44,6 @@ export interface FileStats {
   totalFiles: number
   totalFolders: number
   totalSize: number
-  publicObjects: number
 }
 
 export type SortField = 'name' | 'size' | 'date'

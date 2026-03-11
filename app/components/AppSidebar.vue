@@ -19,18 +19,6 @@
       </div>
     </div>
 
-    <!-- Quick filters -->
-    <div class="sidebar-section">
-      <div class="sidebar-label">Quick Access</div>
-      <div v-for="f in quickFilters" :key="f.type" class="bucket-item" :class="{ active: activeFilter === f.type }"
-        @click="toggleFilter(f.type)">
-        <div class="bucket-icon">{{ f.icon }}</div>
-        <div class="bucket-info">
-          <div class="bucket-name">{{ f.label }}</div>
-        </div>
-      </div>
-    </div>
-
     <!-- Storage gauge -->
     <div class="sidebar-storage">
       <div class="storage-bar-label">
@@ -52,29 +40,6 @@ import { useS3Store } from '~/stores/s3'
 import { formatBytes } from '~/utils/format'
 
 const store = useS3Store()
-const activeFilter = ref<string | null>(null)
-
-const quickFilters = [
-  { type: 'images', icon: '🖼️', label: 'Images' },
-  { type: 'docs', icon: '📄', label: 'Documents' },
-  { type: 'archives', icon: '📦', label: 'Archives' },
-]
-
-const IMAGE_EXT = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico']
-const DOC_EXT = ['pdf', 'doc', 'docx', 'txt', 'md', 'csv', 'xls', 'xlsx']
-const ARCHIVE_EXT = ['zip', 'gz', 'tar', '7z', 'rar']
-
-function toggleFilter(type: string) {
-  activeFilter.value = activeFilter.value === type ? null : type
-  const q = activeFilter.value
-  if (!q) { store.setSearch(''); return }
-
-  const extMap: Record<string, string[]> = {
-    images: IMAGE_EXT, docs: DOC_EXT, archives: ARCHIVE_EXT,
-  }
-  // Encode as a special "ext:" prefix so the store can filter by ext
-  store.setSearch(`__ext:${extMap[q]?.join(',')}`)
-}
 
 // Fake storage 67 %
 const usedPct = 67
