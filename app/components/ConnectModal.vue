@@ -15,21 +15,14 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Profile</label>
-            <select v-model="selectedProfileId" class="form-input" :disabled="loadingProfiles"
-              @change="onProfileChange">
-              <option value="__env">Default (env)</option>
-              <option v-for="p in profiles" :key="p.id" :value="p.id">
-                {{ p.name }}{{ p.accessKeyIdMasked ? ` (${p.accessKeyIdMasked})` : '' }}
-              </option>
+            <label class="form-label">Mode</label>
+            <select v-model="mode" class="form-input">
+              <option value="env">Default (env)</option>
+              <option value="custom">Custom</option>
             </select>
           </div>
 
           <div class="settings-grid">
-            <div class="form-group">
-              <label class="form-label">Profile Name</label>
-              <input v-model="profileName" class="form-input" placeholder="Production / Staging / MinIO" />
-            </div>
             <div class="form-group">
               <label class="form-label">Access Key ID</label>
               <input v-model="form.accessKeyId" class="form-input" placeholder="AKIA…" type="password"
@@ -57,12 +50,6 @@
             <input v-model="form.endpoint" class="form-input" placeholder="https://s3.example.com" />
           </div>
 
-          <div class="form-group">
-            <button class="btn" style="width:100%" @click="applyR2Example">
-              Use Cloudflare R2 example
-            </button>
-          </div>
-
           <div v-if="testResult" class="test-result" :class="testResult.ok ? 'ok' : 'fail'">
             {{ testResult.ok ? '✅' : '❌' }} {{ testResult.message }}
           </div>
@@ -73,10 +60,6 @@
             <span v-if="testing" class="loading-spinner" />
             <span v-else>🧪 Test Connection</span>
           </button>
-          <button v-if="selectedProfileId !== '__env'" class="btn btn-danger" :disabled="testing || loadingProfiles"
-            @click="removeProfile">
-            🗑️ Delete Profile
-          </button>
           <button class="btn" @click="close">Cancel</button>
           <button class="btn btn-primary" @click="save">Save & Connect</button>
         </div>
@@ -86,8 +69,6 @@
 </template>
 
 <script setup lang="ts">
-import type { S3ProfilePublic } from '~/types/config'
-
 const _props = defineProps<{ modelValue: boolean }>()
 const emit = defineEmits(['update:modelValue', 'connected'])
 
@@ -99,6 +80,9 @@ const regions = [
   'sa-east-1', 'ca-central-1',
 ]
 
+const mode = ref<'env' | 'custom'>('env')
+const customProfileId = ref<string | null>(null)
+
 const form = reactive({
   accessKeyId: '',
   secretAccessKey: '',
@@ -107,53 +91,32 @@ const form = reactive({
   endpoint: '',
 })
 
-const profiles = ref<S3ProfilePublic[]>([])
-const selectedProfileId = ref<string>('__env')
-const profileName = ref<string>('')
-const loadingProfiles = ref(false)
-
 const testing = ref(false)
 const testResult = ref<{ ok: boolean; message: string } | null>(null)
 
 watch(() => _props.modelValue, async (v) => {
-  if (v) await refreshProfiles()
+  if (v) await loadActive()
 })
 
 function close() { emit('update:modelValue', false) }
 
-async function refreshProfiles() {
-  loadingProfiles.value = true
-  try {
-    const data = await $fetch('/api/config/profiles')
-    profiles.value = data.profiles || []
-    selectedProfileId.value = data.activeProfileId || '__env'
-    applySelectedProfile()
+async function loadActive() {
+  testResult.value = null
+  const data = await $fetch('/api/config/active')
+  if (data.activeProfileId) {
+    mode.value = 'custom'
+    customProfileId.value = data.activeProfileId
+    form.region = data.activeProfile?.region || 'us-east-1'
+    form.bucketName = data.activeProfile?.defaultBucket || ''
+    form.endpoint = data.activeProfile?.endpoint || ''
   }
-  finally {
-    loadingProfiles.value = false
+  else {
+    mode.value = 'env'
+    customProfileId.value = null
+    form.region = 'us-east-1'
+    form.bucketName = ''
+    form.endpoint = ''
   }
-}
-
-function applySelectedProfile() {
-  const p = profiles.value.find(x => x.id === selectedProfileId.value)
-  profileName.value = p?.name || ''
-  form.region = p?.region || 'us-east-1'
-  form.bucketName = p?.defaultBucket || ''
-  form.endpoint = p?.endpoint || ''
-  form.accessKeyId = ''
-  form.secretAccessKey = ''
-}
-
-function onProfileChange() {
-  applySelectedProfile()
-}
-
-function applyR2Example() {
-  selectedProfileId.value = '__env'
-  profileName.value = 'Cloudflare R2'
-  form.region = 'auto'
-  form.endpoint = 'https://dafbcc9bb54eab3add9d1b755668cd27.r2.cloudflarestorage.com'
-  form.bucketName = ''
   form.accessKeyId = ''
   form.secretAccessKey = ''
 }
@@ -182,49 +145,9 @@ async function testConnection() {
   }
 }
 
-async function removeProfile() {
-  const id = selectedProfileId.value
-  if (id === '__env') return
-  await $fetch('/api/config/profiles', { method: 'DELETE', body: { id } })
-  await refreshProfiles()
-}
-
 async function save() {
-  if (selectedProfileId.value === '__env') {
-    if (form.accessKeyId && form.secretAccessKey && profileName.value.trim()) {
-      await $fetch('/api/config/profiles', {
-        method: 'POST',
-        body: {
-          name: profileName.value.trim(),
-          region: form.region,
-          endpoint: form.endpoint || undefined,
-          defaultBucket: form.bucketName || undefined,
-          accessKeyId: form.accessKeyId,
-          secretAccessKey: form.secretAccessKey,
-          setActive: true,
-        },
-      })
-    }
-    else {
-      await $fetch('/api/config/active', { method: 'POST', body: { id: null } })
-    }
-    emit('connected', {})
-    close()
-    return
-  }
-
-  const p = profiles.value.find(x => x.id === selectedProfileId.value)
-  const isDirty = Boolean(
-    form.accessKeyId
-    || form.secretAccessKey
-    || profileName.value.trim() !== (p?.name || '')
-    || form.region !== (p?.region || 'us-east-1')
-    || (form.bucketName || '') !== (p?.defaultBucket || '')
-    || (form.endpoint || '') !== (p?.endpoint || ''),
-  )
-
-  if (!isDirty) {
-    await $fetch('/api/config/active', { method: 'POST', body: { id: selectedProfileId.value } })
+  if (mode.value === 'env') {
+    await $fetch('/api/config/active', { method: 'POST', body: { id: null } })
     emit('connected', {})
     close()
     return
@@ -233,8 +156,8 @@ async function save() {
   await $fetch('/api/config/profiles', {
     method: 'POST',
     body: {
-      id: selectedProfileId.value,
-      name: profileName.value.trim() || p?.name || 'Profile',
+      id: customProfileId.value || undefined,
+      name: 'Custom',
       region: form.region,
       endpoint: form.endpoint || undefined,
       defaultBucket: form.bucketName || undefined,
