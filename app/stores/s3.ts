@@ -35,6 +35,10 @@ export const useS3Store = defineStore('s3', () => {
   const activeProfile = ref<S3ProfilePublic | null>(null)
   const activeProfileId = ref<string | null>(null)
   const profiles = ref<S3ProfilePublic[]>([])
+  const folderTotals = ref<{ totalFiles: number; totalFolders: number; totalSize: number } | null>(null)
+  const folderTotalsKey = ref<string>('')
+  const folderTotalsLoading = ref(false)
+  const folderTotalsRequestId = ref(0)
 
   // ─── Computed ─────────────────────────────────────────────
   const filteredObjects = computed(() => {
@@ -115,6 +119,62 @@ export const useS3Store = defineStore('s3', () => {
     }
   }
 
+  async function fetchFolderTotals(force = false) {
+    if (!currentBucket.value) {
+      folderTotals.value = null
+      folderTotalsKey.value = ''
+      folderTotalsLoading.value = false
+      return
+    }
+    const key = `${currentBucket.value}|${currentPrefix.value}`
+    if (!force && folderTotalsKey.value === key) return
+
+    const reqId = (folderTotalsRequestId.value += 1)
+    folderTotalsLoading.value = true
+    folderTotalsKey.value = key
+    folderTotals.value = { totalFiles: 0, totalFolders: 0, totalSize: 0 }
+
+    let token: string | undefined = undefined
+    const folders = new Set<string>()
+    let totalFiles = 0
+    let totalSize = 0
+
+    try {
+      do {
+        if (folderTotalsRequestId.value !== reqId) return
+        const params: Record<string, string> = {
+          bucket: currentBucket.value,
+          prefix: currentPrefix.value,
+          maxKeys: '1000',
+        }
+        if (token) params.continuationToken = token
+
+        const data = await $fetch('/api/s3/objects', { params })
+        for (const o of data.objects || []) {
+          if (o.isFolder) {
+            if (o.key) folders.add(o.key)
+          }
+          else {
+            totalFiles += 1
+            totalSize += Number(o.size || 0)
+          }
+        }
+
+        folderTotals.value = { totalFiles, totalFolders: folders.size, totalSize }
+        token = data.continuationToken || undefined
+      } while (token)
+    }
+    catch {
+      if (folderTotalsRequestId.value !== reqId) return
+      folderTotals.value = null
+      folderTotalsKey.value = ''
+    }
+    finally {
+      if (folderTotalsRequestId.value !== reqId) return
+      folderTotalsLoading.value = false
+    }
+  }
+
   async function fetchActiveProfile() {
     try {
       const data = await $fetch('/api/config/active')
@@ -150,6 +210,9 @@ export const useS3Store = defineStore('s3', () => {
     buckets.value = []
     selectedKeys.value = new Set()
     resetPaging()
+    folderTotals.value = null
+    folderTotalsKey.value = ''
+    folderTotalsLoading.value = false
 
     await $fetch('/api/config/active', { method: 'POST', body: { id } })
     await fetchProfiles()
@@ -170,6 +233,7 @@ export const useS3Store = defineStore('s3', () => {
     selectedKeys.value = new Set()
     resetPaging()
     await fetchObjects()
+    void fetchFolderTotals(true)
   }
 
   async function fetchObjects() {
@@ -220,6 +284,7 @@ export const useS3Store = defineStore('s3', () => {
     selectedKeys.value = new Set()
     resetPaging()
     await fetchObjects()
+    void fetchFolderTotals(true)
   }
 
   async function nextPage() {
@@ -317,7 +382,10 @@ export const useS3Store = defineStore('s3', () => {
     uploading.value = false
 
     const succeeded = tasks.filter((t) => t.status === 'done').length
-    if (succeeded > 0) await fetchObjects()
+    if (succeeded > 0) {
+      await fetchObjects()
+      void fetchFolderTotals(true)
+    }
 
     return tasks
   }
@@ -359,6 +427,7 @@ export const useS3Store = defineStore('s3', () => {
     })
     clearSelection()
     await fetchObjects()
+    void fetchFolderTotals(true)
     return data
   }
 
@@ -378,6 +447,7 @@ export const useS3Store = defineStore('s3', () => {
       },
     })
     await fetchObjects()
+    void fetchFolderTotals(true)
   }
 
   // ─── Rename ───────────────────────────────────────────────
@@ -396,6 +466,7 @@ export const useS3Store = defineStore('s3', () => {
       },
     })
     await fetchObjects()
+    void fetchFolderTotals(true)
     return destinationKey
   }
 
@@ -447,6 +518,8 @@ export const useS3Store = defineStore('s3', () => {
     activeProfileId,
     profiles,
     pageIndex,
+    folderTotals,
+    folderTotalsLoading,
     // Computed
     filteredObjects, stats, breadcrumbs,
     hasSelection, selectionCount,
@@ -456,6 +529,7 @@ export const useS3Store = defineStore('s3', () => {
     fetchActiveProfile,
     fetchProfiles,
     switchProfile,
+    fetchFolderTotals,
     fetchObjects, navigateTo, loadMore,
     nextPage, prevPage,
     setPageSize,
