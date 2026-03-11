@@ -31,6 +31,8 @@ export const useS3Store = defineStore('s3', () => {
   const error = ref<string | null>(null)
   const pageSize = ref<number>(200)
   const activeProfile = ref<S3ProfilePublic | null>(null)
+  const activeProfileId = ref<string | null>(null)
+  const profiles = ref<S3ProfilePublic[]>([])
 
   // ─── Computed ─────────────────────────────────────────────
   const filteredObjects = computed(() => {
@@ -105,10 +107,41 @@ export const useS3Store = defineStore('s3', () => {
     try {
       const data = await $fetch('/api/config/active')
       activeProfile.value = data.activeProfile || null
+      activeProfileId.value = data.activeProfileId || null
     }
     catch {
       activeProfile.value = null
+      activeProfileId.value = null
     }
+  }
+
+  async function fetchProfiles() {
+    try {
+      const data = await $fetch('/api/config/profiles')
+      profiles.value = data.profiles || []
+      activeProfileId.value = data.activeProfileId || null
+      activeProfile.value = activeProfileId.value
+        ? profiles.value.find(p => p.id === activeProfileId.value) || null
+        : null
+    }
+    catch {
+      profiles.value = []
+      activeProfileId.value = null
+      activeProfile.value = null
+    }
+  }
+
+  async function switchProfile(id: string | null) {
+    await $fetch('/api/config/active', { method: 'POST', body: { id } })
+    await fetchProfiles()
+    await fetchBuckets()
+    const nextBucket = activeProfile.value?.defaultBucket
+    if (nextBucket && buckets.value.some(b => b.name === nextBucket)) {
+      await selectBucket(nextBucket)
+      return
+    }
+    const first = buckets.value[0]?.name
+    if (first) await selectBucket(first)
   }
 
   async function selectBucket(name: string) {
@@ -379,12 +412,16 @@ export const useS3Store = defineStore('s3', () => {
     searchQuery, isTruncated, error,
     pageSize,
     activeProfile,
+    activeProfileId,
+    profiles,
     // Computed
     filteredObjects, stats, breadcrumbs,
     hasSelection, selectionCount,
     // Actions
     fetchBuckets, selectBucket,
     fetchActiveProfile,
+    fetchProfiles,
+    switchProfile,
     fetchObjects, navigateTo, loadMore,
     setPageSize,
     toggleSelect, selectAll, clearSelection, isSelected,

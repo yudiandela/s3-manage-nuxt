@@ -22,6 +22,7 @@
         <div class="status-dot" />
         Connected
       </div>
+      <ProfileSwitcher />
       <select class="btn" style="cursor:pointer" :value="theme" @change="onThemeChange">
         <option v-for="opt in themeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
       </select>
