@@ -150,6 +150,71 @@ body::before {
   gap: 10px;
 }
 
+.dropdown {
+  position: relative;
+}
+
+.dropdown .btn.active {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  min-width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  z-index: 500;
+}
+
+.dropdown-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dropdown-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 4px 2px 0;
+}
+
+.dropdown-select {
+  width: 100%;
+}
+
+.dropdown-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 10px 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.dropdown-item:hover {
+  background: var(--surface2);
+  border-color: var(--border);
+}
+
 .status-badge {
   display: flex;
   align-items: center;
